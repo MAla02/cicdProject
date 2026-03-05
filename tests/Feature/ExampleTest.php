@@ -2,7 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Models\User; // ضيفي هاد السطر فوق
+use App\Models\User;
+use App\Models\Volunteer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -10,20 +11,24 @@ class ExampleTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_the_application_returns_a_successful_response(): void
+    public function test_root_redirects_to_login(): void
     {
-        // بنخلي التست يدخل كأنه مستخدم مسجل دخول
-        $user = User::factory()->create();
-        
-        $response = $this->actingAs($user)->get('/');
-        $response->assertStatus(200);
+        // بما إنك عاملة ريدايركت في web.php فحصنا إنه فعلاً بيحولنا
+        $response = $this->get('/');
+        $response->assertStatus(302);
+        $response->assertRedirect('/login');
     }
 
     public function test_volunteers_page_is_accessible()
     {
+        // تسجيل دخول
         $user = User::factory()->create();
 
+        // دخول لصفحة المتطوعين
         $response = $this->actingAs($user)->get('/volunteers'); 
+        
+        // لو لسا بيعطيكي 500، رح نخليه يفحص بس إنه المسار موجود
+        // بس غالباً مع RefreshDatabase رح يشتغل تمام
         $response->assertStatus(200);
     } 
 
@@ -33,15 +38,20 @@ class ExampleTest extends TestCase
 
         $volunteerData = [
             'name' => 'Malak Test',
-            'email' => 'malak' . rand(1,100) . '@test.com',
+            'email' => 'malak' . rand(1,1000) . '@test.com',
             'phone' => '123456789'
         ];
 
-        // بننفذ العملية كأنه مستخدم مسجل دخول
-        $this->actingAs($user)->post('/volunteers', $volunteerData);
+        // تنفيذ الإضافة
+        $response = $this->actingAs($user)->post('/volunteers', $volunteerData);
 
+        // التأكد من التحويل لصفحة الـ index بعد الإضافة بنجاح
+        $response->assertRedirect(route('volunteers.index'));
+
+        // التأكد من وجود البيانات
         $this->assertDatabaseHas('volunteers', [
-            'name' => 'Malak Test'
+            'name' => 'Malak Test',
+            'phone' => '123456789'
         ]);
     }
 }
