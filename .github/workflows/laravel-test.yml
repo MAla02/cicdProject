@@ -75,6 +75,12 @@ jobs:
           DB_PASSWORD: password
         run: php artisan db:seed
 
+      - name: Clear Config and Cache
+        run: |
+          php artisan config:clear
+          php artisan cache:clear
+          php artisan view:clear
+          
       - name: Run PHPUnit tests
         env:
           DB_CONNECTION: mysql

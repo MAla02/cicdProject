@@ -7,7 +7,7 @@ use App\Models\Volunteer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class ExampleTest extends TestCase
+class VolunteerFeatureTest extends TestCase
 {
     use RefreshDatabase;
 
